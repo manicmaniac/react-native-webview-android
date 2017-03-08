@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.webkit.GeolocationPermissions;
+import android.webkit.HttpAuthHandler;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -52,6 +53,19 @@ class RNWebView extends WebView implements LifecycleEventListener {
 
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             mEventDispatcher.dispatchEvent(new NavigationStateChangeEvent(getId(), SystemClock.nanoTime(), view.getTitle(), true, url, view.canGoBack(), view.canGoForward()));
+        }
+
+        @Override
+        public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
+            mEventDispatcher.dispatchEvent(new ReceiveHttpAuthRequestEvent(getId(), host, realm));
+            String[] httpAuthUsernamePassword = view.getHttpAuthUsernamePassword(host, realm);
+            if (httpAuthUsernamePassword != null) {
+                String username = httpAuthUsernamePassword[0];
+                String password = httpAuthUsernamePassword[1];
+                handler.proceed(username, password);
+            } else {
+                handler.cancel();
+            }
         }
     }
 

@@ -169,6 +169,20 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
         view.setInjectedJavaScript(injectedJavaScript);
     }
 
+    @ReactProp(name = "httpAuths")
+    public void setHttpAuths(RNWebView view, @Nullable ReadableArray auths) {
+        if (auths != null) {
+            for (int i = 0; i < auths.size(); i++) {
+                ReadableMap auth = auths.getMap(i);
+                String host = auth.getString("host");
+                String realm = auth.getString("realm");
+                String username = auth.getString("username");
+                String password = auth.getString("password");
+                view.setHttpAuthUsernamePassword(host, realm, username, password);
+            }
+        }
+    }
+
     @Override
     public @Nullable Map<String, Integer> getCommandsMap() {
         return MapBuilder.of(
